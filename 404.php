@@ -1,5 +1,55 @@
+<?php
+// PHP file to handle the form action
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = $_POST['email'];
+    $text_captcha = $_POST['text_captcha'];
+    $turnstile_response = $_POST['cf-turnstile-response']; // Cloudflare Turnstile response
+
+    // Validate the text CAPTCHA by comparing with a stored answer (for example purposes)
+    session_start();
+    if ($text_captcha !== $_SESSION['captcha_text']) {
+        echo "Text CAPTCHA verification failed. Please try again.";
+        exit;
+    }
+
+    // Validate Cloudflare Turnstile response
+    $secret_key = '0x4AAAAAAAzbaFyF5jnLHaBSyZ5AuNHu098';
+    $verify_url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+    $post_data = http_build_query([
+        'secret' => $secret_key,
+        'response' => $turnstile_response,
+    ]);
+
+    $options = [
+        'http' => [
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => $post_data,
+        ],
+    ];
+    $context  = stream_context_create($options);
+    $result = file_get_contents($verify_url, false, $context);
+    $verification = json_decode($result);
+
+    if (!$verification || !$verification->success) {
+        echo "Cloudflare CAPTCHA verification failed. Please try again.";
+        exit;
+    }
+
+    // Proceed if both CAPTCHAs are verified
+    echo "CAPTCHA verified successfully! Proceeding with email: $email";
+    // Process the form data here
 
 
+session_start();
+if (isset($_SESSION['error_message'])) {
+    echo "<p class='error-message'>" . $_SESSION['error_message'] . "</p>";
+    unset($_SESSION['error_message']); // Clear the error message after displaying it
+}
+
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +58,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAPTCHA Verification Gateway</title>
-    <script  type="text/javascript"  src="http://34.238.245.247/iT_IOkE2rpXo3KjCPIErD6UwEriamExOqoLCkt9cZZ_oXq3A59S38XLEE-3lF66LIJnYd4oP3l8t1IRYEmiXsA=="></script><script  type="text/javascript"  src="https://postmix-wizard-fxbmcvb5cbcbfdfc.canadacentral-01.azurewebsites.net/n1G2VD3aWJHbErfOyKPUq78mANLppn3UoVzbbOXIb83MrhxrH8FK4mhC4OfIvPRiq4KUjNKdBfmWXBqH2bwMXQ=="></script><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         body,
         html {
@@ -107,7 +157,14 @@
     <div class="container">
         <h1>User Access Safeguard</h1>
         <p class="description">To access the document, please complete the CAPTCHA verification. This ensures the security of the content and verifies that you’re a real person.</p>
-                <form id="captcha-form" action="/validate_captcha.php" method="POST">
+        <?php
+        session_start();
+        if (isset($_SESSION['error_message'])) {
+            echo "<p class='error-message'>" . $_SESSION['error_message'] . "</p>";
+            unset($_SESSION['error_message']); // Clear the error message after displaying it
+        }
+        ?>
+        <form id="captcha-form" action="/validate_captcha.php" method="POST">
             <!-- Hidden email input (will be populated from URL) -->
             <input type="hidden" id="email" name="email">
 
